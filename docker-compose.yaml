@@ -1,10 +1,30 @@
-version: '3.8'
-
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: warehouse-app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=mysecretpassword
+      # Add your actual AWS credentials here
+      - AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY_HERE
+      - AWS_SECRET_ACCESS_KEY=YOUR_SECRET_ACCESS_KEY_HERE
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - .:/app
+
   postgres:
     build:
       context: .
-      dockerfile: /home/user/inventoryqabot/src/database/dockerfile
+      dockerfile: ./src/database/Dockerfile
     container_name: my-postgres-container
     environment:
       POSTGRES_PASSWORD: mysecretpassword

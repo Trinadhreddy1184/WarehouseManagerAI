@@ -21,7 +21,8 @@ class ProductLookupAgent:
     def __init__(self):
         self.llm = self._initialize_llm()
         self.prompt_template = self._load_prompt_template()
-        self.agent_executor = self._create_agent_executor()
+        
+        # Initialize tools BEFORE creating agent executor
         self.tools_for_agent = [
             Tool(
                 name="Search for information about product in embeddings.",
@@ -41,6 +42,9 @@ class ProductLookupAgent:
                 """,
             )
         ]
+        
+        # Now create agent executor after tools are defined
+        self.agent_executor = self._create_agent_executor()
 
     def _initialize_llm(self):
         cfg = LLMMainConfig.from_file(os.getenv("LLM_CONFIG_PATH"))
@@ -67,7 +71,6 @@ class ProductLookupAgent:
         )
 
     def _create_agent_executor(self):
-
         react_prompt = hub.pull("hwchase17/react")
         agent = create_react_agent(llm=self.llm, tools=self.tools_for_agent, prompt=react_prompt)
         return AgentExecutor(agent=agent, tools=self.tools_for_agent, verbose=True)
@@ -79,4 +82,3 @@ class ProductLookupAgent:
             return result["output"]
         except Exception as e:
             return "Agent has no idea"
-
